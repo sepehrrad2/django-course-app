@@ -28,7 +28,7 @@
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Username" name="username" >
-                            <input type="password" class="form-control" placeholder="Username" name="psw" >
+                            <input type="password" class="form-control" placeholder="Pass" name="psw" >
                             <button class="btn btn-primary" type="submit">Login</button>
                             <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
                         </div>
@@ -53,15 +53,59 @@
             <!-- Task: show questions and choices -->
             <!-- <HINT> Use Bootstrap Collapse to hide exam first, more details could be found here
             https://www.w3schools.com/bootstrap4/bootstrap_collapse.asp-->
-
+            
             <!--
 
             A collapse example here:
-            <div id="exam" class="collapse">
-                Click to expand elements within the collapse div
-                </div>
-
             -->
+            <div class="container">
+                <h2>Exam Form</h2>
+                <a href="#exam" class="btn btn-primary" data-toggle="collapse">Exam</a>
+                <div id="exam" class="collapse">
+
+                        {% if user.is_authenticated %}
+                        <!-- A choice submission form example-->
+                            <form id="questionform" action="{% url 'onlinecourse:login' %}" method="post">
+                                {% for lesson in course.lesson_set.all %}
+                                {% for question in lesson.question_set.all %}
+                                <!--... for each question in the course ...-->
+                                <div class="card mt-1">
+                                    <div class="card-header"><h5>{{ question.question}}</h5></div>
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        {% for choice in question.choice_set.all %}
+                                        <!-- for each choice in the question ...-->
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" name="choice_{{choice.id}}"
+                                                class="form-check-input" id="{{choice.id}}"
+                                                value="{{choice.id}}">{{ choice.content }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                                <input class="btn btn-success btn-block" type="submit" value="Submit">
+                            </form>
+                        {% else %}
+                        
+                            <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Username" name="username" >
+                                    <input type="password" class="form-control" placeholder="Pass" name="psw" >
+                                    <button class="btn btn-primary" type="submit">Login</button>
+                                    <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
+                                </div>
+                            </form>
+                        
+                        {% endif %}
+                    
+                </div>
+            </div>
 
             <!-- <HINT> If user is authenticated, show course exam with a list of question -->
 
