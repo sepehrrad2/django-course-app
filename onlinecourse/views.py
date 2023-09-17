@@ -11,7 +11,7 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 # Create your views here.
-
+from .models import Course, Enrollment, Question, Choice, Submission
 
 def registration_request(request):
     context = {}
@@ -110,19 +110,27 @@ def enroll(request, course_id):
          # Collect the selected choices from exam form
          # Add each selected choice object to the submission object
          # Redirect to show_exam_result with the submission id
-#def submit(request, course_id):
+def extract_answers(request):
+   submitted_anwsers = []
+   for key in request.POST:
+       if key.startswith('choice'):
+           value = request.POST[key]
+           choice_id = int(value)
+           submitted_anwsers.append(choice_id)
+   return submitted_anwsers
 
-
-# <HINT> A example method to collect the selected choices from the exam form from the request object
-#def extract_answers(request):
-#    submitted_anwsers = []
-#    for key in request.POST:
-#        if key.startswith('choice'):
-#            value = request.POST[key]
-#            choice_id = int(value)
-#            submitted_anwsers.append(choice_id)
-#    return submitted_anwsers
-
+def submit(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    Current_User = request.user
+    Enrol = Enrollment.objects.get(user=Current_User, course=course)
+    Submission.objects.create(enrollment=Enrol)
+    choice_id = extract_answers(request)
+    Sub = Submission.objects.get(enrollment=Enrol)
+    for id in choice_id:
+        Sub.choices.add(Choice.objects.get(id=id))
+    Sub.save()
+    id = Sub.id
+    return redirect('onlinecourse:exam_result', course_id = course_id ,submission_id = id)
 
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
 # you may implement it based on the following logic:
@@ -130,7 +138,7 @@ def enroll(request, course_id):
         # Get the selected choice ids from the submission record
         # For each selected choice, check if it is a correct answer or not
         # Calculate the total score
-#def show_exam_result(request, course_id, submission_id):
+def show_exam_result(request, course_id, submission_id):
 
 
 
