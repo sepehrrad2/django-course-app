@@ -148,6 +148,7 @@ def show_exam_result(request, course_id, submission_id):
     Choices = sub.choices.all()
     choice_ids = []
     total_score = 0
+    score = 0;
     for choice in Choices:
         choice_ids.append(choice.id)
     lessons = course.lesson_set.all()
@@ -156,13 +157,15 @@ def show_exam_result(request, course_id, submission_id):
         for question in questions:
             if (question.is_get_score(choice_ids)):
                 total_score = total_score + question.mark
-    #context = {'course': course,'selected_ids': choice_ids,'grade': total_score}
-    context = {'selected_ids': choice_ids,'grade': total_score}
-    json_data = json.dumps(context)   
-    response = HttpResponse(json_data, content_type='application/json')
-    response.status_code = 200 
-    return response
-    #return render(request, 'exam_result_bootstrap.html', context)
+            score = score + question.mark
+    total_score = (total_score / score) * 100
+    context = {'course': course,'selected_ids': choice_ids,'grade': total_score}
+    #context = {'selected_ids': choice_ids,'grade': total_score}
+    #json_data = json.dumps(context)   
+    #response = HttpResponse(json_data, content_type='application/json')
+    #response.status_code = 200 
+    #return response
+    return render(request, 'exam_result_bootstrap.html', context)
 
 
 

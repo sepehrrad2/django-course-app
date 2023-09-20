@@ -39,9 +39,11 @@
     {% if grade > 80 %}
     <div class="alert alert-success">
        <!--HINT Display passed info -->
+       Congratulation John! you have passed the course whith score {% grade %} 
     </div>
         {% else %}
         <div class="alert alert-danger">
+            
             <!--HINT Display failed info -->
         </div>
         <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
