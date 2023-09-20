@@ -159,13 +159,15 @@ def show_exam_result(request, course_id, submission_id):
                 total_score = total_score + question.mark
             score = score + question.mark
     total_score = (total_score / score) * 100
-    context = {'course': course,'selected_ids': choice_ids,'grade': total_score}
-    #context = {'selected_ids': choice_ids,'grade': total_score}
-    #json_data = json.dumps(context)   
-    #response = HttpResponse(json_data, content_type='application/json')
-    #response.status_code = 200 
-    #return response
-    return render(request, 'exam_result_bootstrap.html', context)
+    if (total_score > 80 ):   
+        response = HttpResponse(f'Congratulation John! you have passed the course whith score {total_score}')
+        response.status_code = 200 
+        return response
+    else:
+        response = HttpResponse(f'Please Review Material and take exam efter {total_score}')
+        response.status_code = 200 
+        return response
+
 
 
 
