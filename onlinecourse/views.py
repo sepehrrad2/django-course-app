@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+import json
+from django.http import HttpResponseRedirect, HttpResponse
 # <HINT> Import any new Models here
 from .models import Course, Enrollment
 from django.contrib.auth.models import User
@@ -123,9 +124,12 @@ def submit(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     Current_User = request.user
     Enrol = Enrollment.objects.get(user=Current_User, course=course)
+    for key in request.POST:
+        print(key)
+        print(request.POST[key])
     Submission.objects.create(enrollment=Enrol)
     choice_id = extract_answers(request)
-    Sub = Submission.objects.get(enrollment=Enrol)
+    Sub = Submission.objects.filter(enrollment=Enrol).order_by('-timestamp').first()
     for id in choice_id:
         Sub.choices.add(Choice.objects.get(id=id))
     Sub.save()
@@ -144,7 +148,7 @@ def show_exam_result(request, course_id, submission_id):
     Choices = sub.choices.all()
     choice_ids = []
     total_score = 0
-    for choice in Choice:
+    for choice in Choices:
         choice_ids.append(choice.id)
     lessons = course.lesson_set.all()
     for lesson in lessons:
@@ -152,8 +156,13 @@ def show_exam_result(request, course_id, submission_id):
         for question in questions:
             if (question.is_get_score(choice_ids)):
                 total_score = total_score + question.mark
-    context = {'course': course,'selected_ids': selected_ids,'grade': grade}    
-    return render(request, 'exam_result_bootstrap.html', context)
+    #context = {'course': course,'selected_ids': choice_ids,'grade': total_score}
+    context = {'selected_ids': choice_ids,'grade': total_score}
+    json_data = json.dumps(context)   
+    response = HttpResponse(json_data, content_type='application/json')
+    response.status_code = 200 
+    return response
+    #return render(request, 'exam_result_bootstrap.html', context)
 
 
 

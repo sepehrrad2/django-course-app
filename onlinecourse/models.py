@@ -1,4 +1,5 @@
 import sys
+from django.utils import timezone
 from django.utils.timezone import now
 try:
     from django.db import models
@@ -136,4 +137,5 @@ class Choice(models.Model):
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
+    timestamp = models.DateTimeField(default=timezone.now)
     #Other fields and methods you would like to design
